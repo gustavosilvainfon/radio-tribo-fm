@@ -63,7 +63,11 @@ export default function TopSongs() {
               {displayedSongs.map((song, index) => (
                 <div
                   key={song.id}
-                  className="flex items-center space-x-4 p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
+                  className="flex items-center space-x-4 p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors cursor-pointer group"
+                  onClick={() => {
+                    console.log(`Tocando: ${song.title} - ${song.artist}`);
+                    // Aqui você pode adicionar integração com Spotify/Apple Music
+                  }}
                 >
                   <div className="flex-shrink-0">
                     <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold">

@@ -75,7 +75,7 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Conteúdo principal */}
-          <div className="lg:col-span-3 space-y-12">
+          <div className="lg:col-span-3 space-y-12 min-w-0">
             
             {/* Promoções Section */}
             <ErrorBoundary>
@@ -102,17 +102,19 @@ export default function Home() {
               <News />
             </ErrorBoundary>
 
-            {/* Top Songs Section (versão completa para mobile) */}
+            {/* Top Songs Section Completa (oculta no desktop com sidebar) */}
             <div className="lg:hidden">
               <ErrorBoundary>
                 <TopSongs />
               </ErrorBoundary>
             </div>
+
+
           </div>
 
           {/* Sidebar direita */}
           <div className="lg:col-span-1 hidden lg:block">
-            <div className="space-y-6">
+            <div className="space-y-6 sticky top-4">
               {/* Top Songs Sidebar */}
               <ErrorBoundary>
                 <TopSongsSidebar />
@@ -126,6 +128,13 @@ export default function Home() {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* Top Songs Section Completa (para desktop quando solicitada) */}
+      <div id="top-songs" className="hidden">
+        <ErrorBoundary>
+          <TopSongs />
+        </ErrorBoundary>
       </div>
 
       {/* Footer */}

@@ -7,11 +7,12 @@ interface RadioPlayerProps {
   streamUrl?: string;
 }
 
-export default function RadioPlayer({ streamUrl = 'https://stream.zeno.fm/your-stream-url' }: RadioPlayerProps) {
+export default function RadioPlayer({ streamUrl = 'https://ice.fabricahost.com.br:8004/live' }: RadioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
@@ -25,15 +26,23 @@ export default function RadioPlayer({ streamUrl = 'https://stream.zeno.fm/your-s
 
     try {
       setIsLoading(true);
+      setHasError(false);
+      
       if (isPlaying) {
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
+        // Reset audio source to force reload
+        audioRef.current.load();
+        audioRef.current.currentTime = 0;
+        
         await audioRef.current.play();
         setIsPlaying(true);
       }
     } catch (error) {
       console.error('Erro ao reproduzir stream:', error);
+      setHasError(true);
+      setIsPlaying(false);
     } finally {
       setIsLoading(false);
     }
@@ -69,12 +78,19 @@ export default function RadioPlayer({ streamUrl = 'https://stream.zeno.fm/your-s
           <div className="flex items-center space-x-2">
             <Radio className="w-5 h-5 text-blue-500" />
             <span className="text-sm font-medium">Rádio Tribo FM</span>
-            {isPlaying && (
-              <div className="flex space-x-1">
-                <div className="w-1 h-4 bg-blue-500 animate-pulse"></div>
-                <div className="w-1 h-4 bg-blue-500 animate-pulse delay-100"></div>
-                <div className="w-1 h-4 bg-blue-500 animate-pulse delay-200"></div>
+            {hasError ? (
+              <span className="text-xs text-red-400">Stream indisponível</span>
+            ) : isPlaying ? (
+              <div className="flex items-center space-x-2">
+                <div className="flex space-x-1">
+                  <div className="w-1 h-4 bg-red-500 animate-pulse"></div>
+                  <div className="w-1 h-4 bg-red-500 animate-pulse delay-100"></div>
+                  <div className="w-1 h-4 bg-red-500 animate-pulse delay-200"></div>
+                </div>
+                <span className="text-xs text-green-400">AO VIVO</span>
               </div>
+            ) : (
+              <span className="text-xs text-gray-400">Offline</span>
             )}
           </div>
         </div>
@@ -116,13 +132,30 @@ export default function RadioPlayer({ streamUrl = 'https://stream.zeno.fm/your-s
         <audio
           ref={audioRef}
           src={streamUrl}
-          preload="none"
+          preload="metadata"
+          crossOrigin="anonymous"
           onLoadStart={() => setIsLoading(true)}
-          onCanPlay={() => setIsLoading(false)}
-          onError={() => {
+          onCanPlay={() => {
+            setIsLoading(false);
+            setHasError(false);
+          }}
+          onPlaying={() => {
+            setIsPlaying(true);
+            setIsLoading(false);
+          }}
+          onPause={() => setIsPlaying(false)}
+          onEnded={() => setIsPlaying(false)}
+          onError={(e) => {
+            console.error('Erro no stream:', e);
             setIsLoading(false);
             setIsPlaying(false);
-            console.error('Erro ao carregar stream de áudio');
+            setHasError(true);
+          }}
+          onStalled={() => {
+            console.log('Stream travado, tentando reconectar...');
+            if (isPlaying) {
+              audioRef.current?.load();
+            }
           }}
         />
       </div>

@@ -60,7 +60,11 @@ export default function TopSongsSidebar() {
           {displayedSongs.map((song, index) => (
             <div
               key={song.id}
-              className="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors group"
+              className="flex items-center space-x-3 p-3 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors group cursor-pointer"
+              onClick={() => {
+                // Simular clique na música (você pode adicionar ação específica aqui)
+                console.log(`Tocando: ${song.title} - ${song.artist}`);
+              }}
             >
               <div className="flex-shrink-0">
                 <div className="w-6 h-6 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
@@ -120,13 +124,20 @@ export default function TopSongsSidebar() {
       )}
 
       <div className="mt-6 pt-4 border-t border-gray-700">
-        <Link
-          href="#top-songs"
-          className="text-blue-400 hover:text-blue-300 text-sm transition-colors flex items-center justify-center space-x-1"
+        <button
+          onClick={() => {
+            // Mostrar e scroll para a seção de músicas completa
+            const topSongsSection = document.querySelector('#top-songs');
+            if (topSongsSection) {
+              topSongsSection.classList.remove('hidden');
+              topSongsSection.scrollIntoView({ behavior: 'smooth' });
+            }
+          }}
+          className="w-full text-blue-400 hover:text-blue-300 text-sm transition-colors flex items-center justify-center space-x-1"
         >
           <span>Ver ranking completo</span>
           <ChevronRight className="w-4 h-4" />
-        </Link>
+        </button>
       </div>
     </div>
   );
