@@ -58,3 +58,17 @@ export interface AdBanner {
   order: number;
   clickCount: number;
 }
+
+export interface Promotion {
+  id: string;
+  title: string;
+  description: string;
+  prize: string;
+  endDate: Date;
+  howToParticipate: string;
+  phone: string;
+  status: 'active' | 'inactive' | 'ended';
+  color: string;
+  icon: string;
+  order: number;
+}

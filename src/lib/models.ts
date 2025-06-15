@@ -120,9 +120,37 @@ const AdBannerSchema = new Schema<IAdBanner>({
   clickCount: { type: Number, default: 0 },
 });
 
+// Promotion Model
+interface IPromotion extends Document {
+  title: string;
+  description: string;
+  prize: string;
+  endDate: Date;
+  howToParticipate: string;
+  phone: string;
+  status: 'active' | 'inactive' | 'ended';
+  color: string;
+  icon: string;
+  order: number;
+}
+
+const PromotionSchema = new Schema<IPromotion>({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  prize: { type: String, required: true },
+  endDate: { type: Date, required: true },
+  howToParticipate: { type: String, required: true },
+  phone: { type: String, required: true },
+  status: { type: String, enum: ['active', 'inactive', 'ended'], default: 'active' },
+  color: { type: String, default: 'from-blue-600 to-cyan-600' },
+  icon: { type: String, default: '🎵' },
+  order: { type: Number, required: true },
+});
+
 export const Song = mongoose.models.Song || mongoose.model<ISong>('Song', SongSchema);
 export const ChatMessage = mongoose.models.ChatMessage || mongoose.model<IChatMessage>('ChatMessage', ChatMessageSchema);
 export const News = mongoose.models.News || mongoose.model<INews>('News', NewsSchema);
 export const Admin = mongoose.models.Admin || mongoose.model<IAdmin>('Admin', AdminSchema);
 export const TeamMember = mongoose.models.TeamMember || mongoose.model<ITeamMember>('TeamMember', TeamMemberSchema);
 export const AdBanner = mongoose.models.AdBanner || mongoose.model<IAdBanner>('AdBanner', AdBannerSchema);
+export const Promotion = mongoose.models.Promotion || mongoose.model<IPromotion>('Promotion', PromotionSchema);

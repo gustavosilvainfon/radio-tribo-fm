@@ -78,7 +78,8 @@ export default function News() {
           <p className="text-gray-400">Últimas notícias em tempo real</p>
         </div>
 
-        <div className="max-w-6xl mx-auto">
+        <div className="flex justify-center">
+          <div className="max-w-5xl w-full">
           {news.length === 0 ? (
             <div className="text-center py-12">
               <Newspaper className="w-16 h-16 text-gray-600 mx-auto mb-4" />
@@ -136,6 +137,7 @@ export default function News() {
               </p>
             </div>
           )}
+          </div>
         </div>
       </div>
     </section>

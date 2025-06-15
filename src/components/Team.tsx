@@ -62,7 +62,8 @@ export default function Team() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="flex justify-center">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-4xl">
           {teamMembers.map((member) => (
             <div
               key={member.id}
@@ -125,6 +126,7 @@ export default function Team() {
               </div>
             </div>
           ))}
+          </div>
         </div>
 
         <div className="text-center mt-12">

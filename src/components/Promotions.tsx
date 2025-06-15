@@ -1,49 +1,56 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Gift, Trophy, Calendar, Phone, Mail, Instagram, Clock, Star } from 'lucide-react';
 
-const activePromotions = [
-  {
-    id: 1,
-    title: 'Tribo Premium - Ganhe Ingressos',
-    description: 'Participe e concorra a ingressos para os melhores shows da cidade!',
-    prize: '2 Ingressos VIP',
-    endDate: '2024-12-31',
-    howToParticipate: 'Ligue durante o programa e responda a pergunta musical',
-    phone: '(11) 9999-9999',
-    status: 'active',
-    color: 'from-purple-600 to-pink-600',
-    icon: '🎫',
-  },
-  {
-    id: 2,
-    title: 'Sertanejo na Veia',
-    description: 'Todo sábado às 20h - Acerte a música sertaneja e ganhe prêmios!',
-    prize: 'Camiseta + CD Autografado',
-    endDate: '2024-12-25',
-    howToParticipate: 'Participe pelo WhatsApp ou Instagram',
-    phone: '(11) 8888-8888',
-    status: 'active',
-    color: 'from-yellow-600 to-orange-600',
-    icon: '🤠',
-  },
-  {
-    id: 3,
-    title: 'Tribo Mania - Hora do Rush',
-    description: 'De segunda a sexta, às 18h - Quiz musical com prêmios diários!',
-    prize: 'Vale-compras R$ 200',
-    endDate: '2024-12-20',
-    howToParticipate: 'Seja o primeiro a ligar e responder corretamente',
-    phone: '(11) 7777-7777',
-    status: 'active',
-    color: 'from-blue-600 to-cyan-600',
-    icon: '🎵',
-  },
-];
+interface Promotion {
+  id: string;
+  title: string;
+  description: string;
+  prize: string;
+  endDate: Date;
+  howToParticipate: string;
+  phone: string;
+  status: 'active' | 'inactive' | 'ended';
+  color: string;
+  icon: string;
+  order: number;
+}
 
 export default function Promotions() {
-  const [selectedPromotion, setSelectedPromotion] = useState<number | null>(null);
+  const [promotions, setPromotions] = useState<Promotion[]>([]);
+  const [selectedPromotion, setSelectedPromotion] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPromotions();
+  }, []);
+
+  const fetchPromotions = async () => {
+    try {
+      const response = await fetch('/api/promotions');
+      const data = await response.json();
+      // Filter only active promotions
+      setPromotions(data.filter((promo: Promotion) => promo.status === 'active'));
+    } catch (error) {
+      console.error('Erro ao buscar promoções:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <section id="promotions" className="py-12 bg-gray-800">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="mt-4 text-gray-400">Carregando promoções...</p>
+          </div>
+        </div>
+      </section>
+    );
+  };
 
   const calculateDaysLeft = (endDate: string) => {
     const today = new Date();
@@ -75,7 +82,7 @@ export default function Promotions() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-          {activePromotions.map((promotion) => {
+          {promotions.map((promotion) => {
             const daysLeft = calculateDaysLeft(promotion.endDate);
             const isExpired = daysLeft === 0;
 
