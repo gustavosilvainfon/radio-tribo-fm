@@ -1,42 +1,54 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Users, Mic, Clock, Heart } from 'lucide-react';
 import Image from 'next/image';
 
-const teamMembers = [
-  {
-    id: 1,
-    name: 'Santos Águia',
-    role: 'Locutor 100% Sertanejo',
-    description: 'Especialista em música sertaneja, Santos traz o melhor do country e sertanejo universitário para você.',
-    imageUrl: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=300&h=300&fit=crop&face=center',
-    schedule: 'Segunda a Sexta - 14h às 18h',
-    specialty: 'Sertanejo & Country',
-    icon: '🤠',
-  },
-  {
-    id: 2,
-    name: 'João Lopes',
-    role: 'Locutor Tribo News e Bom dia Tribo',
-    description: 'Jornalista experiente, João mantém você informado com as principais notícias e um bom dia especial.',
-    imageUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=300&h=300&fit=crop&face=center',
-    schedule: 'Segunda a Sexta - 6h às 10h',
-    specialty: 'Jornalismo & Informação',
-    icon: '📰',
-  },
-  {
-    id: 3,
-    name: 'Daiane Santos',
-    role: 'Locutora Tribo Mania',
-    description: 'Com energia contagiante, Daiane anima suas tardes com os maiores sucessos e muita descontração.',
-    imageUrl: 'https://images.unsplash.com/photo-1494790108755-2616b612b647?w=300&h=300&fit=crop&face=center',
-    schedule: 'Segunda a Sexta - 18h às 22h',
-    specialty: 'Pop & Hits',
-    icon: '🎵',
-  },
-];
+interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  description: string;
+  imageUrl: string;
+  schedule: string;
+  specialty: string;
+  icon: string;
+  order: number;
+  isActive: boolean;
+}
 
 export default function Team() {
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTeam();
+  }, []);
+
+  const fetchTeam = async () => {
+    try {
+      const response = await fetch('/api/team');
+      const data = await response.json();
+      setTeamMembers(data);
+    } catch (error) {
+      console.error('Erro ao buscar equipe:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <section id="team" className="py-12 bg-gray-900">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto"></div>
+            <p className="mt-4 text-gray-400">Carregando equipe...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
   return (
     <section id="team" className="py-12 bg-gray-900">
       <div className="container mx-auto px-4">

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 
@@ -10,48 +10,40 @@ interface AdBannerProps {
   className?: string;
 }
 
-const sampleAds = [
-  {
-    id: 1,
-    title: 'Loja do Som - Instrumentos Musicais',
-    description: 'Os melhores instrumentos com até 50% de desconto!',
-    imageUrl: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=200&fit=crop',
-    link: '#',
-    sponsor: 'Loja do Som',
-    category: 'Música',
-  },
-  {
-    id: 2,
-    title: 'Café Tribo - O Melhor Café da Cidade',
-    description: 'Venha saborear nosso café especial com música ao vivo!',
-    imageUrl: 'https://images.unsplash.com/photo-1447933601403-0c6688de566e?w=400&h=200&fit=crop',
-    link: '#',
-    sponsor: 'Café Tribo',
-    category: 'Alimentação',
-  },
-  {
-    id: 3,
-    title: 'Auto Escola Direção Certa',
-    description: 'Aprenda a dirigir com segurança e qualidade!',
-    imageUrl: 'https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=200&fit=crop',
-    link: '#',
-    sponsor: 'Auto Escola Direção Certa',
-    category: 'Educação',
-  },
-  {
-    id: 4,
-    title: 'Pizzaria Sabor & Cia',
-    description: 'As melhores pizzas da cidade com entrega grátis!',
-    imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400&h=200&fit=crop',
-    link: '#',
-    sponsor: 'Pizzaria Sabor & Cia',
-    category: 'Alimentação',
-  },
-];
+interface Banner {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  link: string;
+  sponsor: string;
+  category: string;
+  position: 'top' | 'side' | 'bottom' | 'inline';
+  isActive: boolean;
+  order: number;
+  clickCount: number;
+}
 
 export default function AdBanner({ position, size = 'medium', className = '' }: AdBannerProps) {
+  const [banners, setBanners] = useState<Banner[]>([]);
   const [currentAdIndex, setCurrentAdIndex] = useState(0);
   const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    fetchBanners();
+  }, []);
+
+  const fetchBanners = async () => {
+    try {
+      const response = await fetch('/api/banners');
+      const data = await response.json();
+      // Filter banners by position
+      const positionBanners = data.filter((banner: Banner) => banner.position === position && banner.isActive);
+      setBanners(positionBanners);
+    } catch (error) {
+      console.error('Erro ao buscar banners:', error);
+    }
+  };
 
   const getSizeClasses = () => {
     switch (size) {
@@ -79,9 +71,12 @@ export default function AdBanner({ position, size = 'medium', className = '' }: 
     }
   };
 
-  const currentAd = sampleAds[currentAdIndex];
-
-  if (!isVisible) return null;
+  // Filter and get current ad for this position
+  const positionBanners = banners.filter(banner => banner.position === position && banner.isActive);
+  
+  if (!isVisible || positionBanners.length === 0) return null;
+  
+  const currentAd = positionBanners[currentAdIndex % positionBanners.length];
 
   return (
     <div className={`${getSizeClasses()} ${getPositionClasses()} ${className}`}>
@@ -102,6 +97,10 @@ export default function AdBanner({ position, size = 'medium', className = '' }: 
           target="_blank"
           rel="noopener noreferrer"
           className="block h-full"
+          onClick={() => {
+            // Track click
+            fetch(`/api/banners/click?id=${currentAd.id}`, { method: 'POST' }).catch(console.error);
+          }}
         >
           <div className="relative h-full">
             <Image
@@ -144,9 +143,9 @@ export default function AdBanner({ position, size = 'medium', className = '' }: 
         </a>
 
         {/* Navigation dots for multiple ads */}
-        {sampleAds.length > 1 && (
+        {positionBanners.length > 1 && (
           <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
-            {sampleAds.map((_, index) => (
+            {positionBanners.map((_, index) => (
               <button
                 key={index}
                 onClick={(e) => {

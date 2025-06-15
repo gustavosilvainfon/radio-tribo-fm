@@ -68,7 +68,61 @@ const AdminSchema = new Schema<IAdmin>({
   createdAt: { type: Date, default: Date.now },
 });
 
+// Team Member Model
+interface ITeamMember extends Document {
+  name: string;
+  role: string;
+  description: string;
+  imageUrl: string;
+  schedule: string;
+  specialty: string;
+  icon: string;
+  order: number;
+  isActive: boolean;
+}
+
+const TeamMemberSchema = new Schema<ITeamMember>({
+  name: { type: String, required: true },
+  role: { type: String, required: true },
+  description: { type: String, required: true },
+  imageUrl: { type: String, required: true },
+  schedule: { type: String, required: true },
+  specialty: { type: String, required: true },
+  icon: { type: String, default: '🎵' },
+  order: { type: Number, required: true, unique: true },
+  isActive: { type: Boolean, default: true },
+});
+
+// Ad Banner Model
+interface IAdBanner extends Document {
+  title: string;
+  description: string;
+  imageUrl: string;
+  link: string;
+  sponsor: string;
+  category: string;
+  position: 'top' | 'side' | 'bottom' | 'inline';
+  isActive: boolean;
+  order: number;
+  clickCount: number;
+}
+
+const AdBannerSchema = new Schema<IAdBanner>({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  imageUrl: { type: String, required: true },
+  link: { type: String, required: true },
+  sponsor: { type: String, required: true },
+  category: { type: String, required: true },
+  position: { type: String, enum: ['top', 'side', 'bottom', 'inline'], required: true },
+  isActive: { type: Boolean, default: true },
+  order: { type: Number, required: true },
+  clickCount: { type: Number, default: 0 },
+});
+
 export const Song = mongoose.models.Song || mongoose.model<ISong>('Song', SongSchema);
 export const ChatMessage = mongoose.models.ChatMessage || mongoose.model<IChatMessage>('ChatMessage', ChatMessageSchema);
 export const News = mongoose.models.News || mongoose.model<INews>('News', NewsSchema);
 export const Admin = mongoose.models.Admin || mongoose.model<IAdmin>('Admin', AdminSchema);
+export const TeamMember = mongoose.models.TeamMember || mongoose.model<ITeamMember>('TeamMember', TeamMemberSchema);
+export const AdBanner = mongoose.models.AdBanner || mongoose.model<IAdBanner>('AdBanner', AdBannerSchema);

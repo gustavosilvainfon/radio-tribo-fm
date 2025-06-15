@@ -31,3 +31,30 @@ export interface User {
   isAdmin: boolean;
   createdAt: Date;
 }
+
+export interface TeamMember {
+  id: string;
+  name: string;
+  role: string;
+  description: string;
+  imageUrl: string;
+  schedule: string;
+  specialty: string;
+  icon: string;
+  order: number;
+  isActive: boolean;
+}
+
+export interface AdBanner {
+  id: string;
+  title: string;
+  description: string;
+  imageUrl: string;
+  link: string;
+  sponsor: string;
+  category: string;
+  position: 'top' | 'side' | 'bottom' | 'inline';
+  isActive: boolean;
+  order: number;
+  clickCount: number;
+}
