@@ -1,13 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Lock, Music, Settings, Save, Plus, Trash2, Edit, ArrowLeft, Palette, Users, Image as ImageIcon, Gift } from 'lucide-react';
+import { Lock, Music, Settings, Save, Plus, Trash2, Edit, ArrowLeft, Palette, Users, Image as ImageIcon, Gift, Cog } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import ThemeCustomizer from '@/components/ThemeCustomizer';
 import TeamManager from '@/components/TeamManager';
 import BannerManager from '@/components/BannerManager';
 import PromotionManager from '@/components/PromotionManager';
+import SettingsManager from '@/components/SettingsManager';
 import { Song } from '@/types';
 
 export default function AdminPage() {
@@ -17,7 +18,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [songs, setSongs] = useState<Song[]>([]);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
-  const [activeTab, setActiveTab] = useState<'songs' | 'team' | 'banners' | 'promotions' | 'theme'>('songs');
+  const [activeTab, setActiveTab] = useState<'songs' | 'team' | 'banners' | 'promotions' | 'settings' | 'theme'>('songs');
   const [newSong, setNewSong] = useState({
     title: '',
     artist: '',
@@ -324,6 +325,17 @@ export default function AdminPage() {
             <span>Promoções</span>
           </button>
           <button
+            onClick={() => setActiveTab('settings')}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
+              activeTab === 'settings'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            <Cog className="w-5 h-5" />
+            <span>Configurações</span>
+          </button>
+          <button
             onClick={() => setActiveTab('theme')}
             className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
               activeTab === 'theme'
@@ -521,6 +533,13 @@ export default function AdminPage() {
         {activeTab === 'promotions' && (
           <div className="max-w-7xl mx-auto">
             <PromotionManager />
+          </div>
+        )}
+
+        {/* Settings Management */}
+        {activeTab === 'settings' && (
+          <div className="max-w-7xl mx-auto">
+            <SettingsManager />
           </div>
         )}
 

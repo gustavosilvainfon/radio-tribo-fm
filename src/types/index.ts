@@ -72,3 +72,10 @@ export interface Promotion {
   icon: string;
   order: number;
 }
+
+export interface Setting {
+  key: string;
+  value: string;
+  category: 'general' | 'social' | 'streaming' | 'programming' | 'custom_code';
+  description?: string;
+}

@@ -147,6 +147,21 @@ const PromotionSchema = new Schema<IPromotion>({
   order: { type: Number, required: true },
 });
 
+// Settings Model
+interface ISettings extends Document {
+  key: string;
+  value: string;
+  category: 'general' | 'social' | 'streaming' | 'programming' | 'custom_code';
+  description?: string;
+}
+
+const SettingsSchema = new Schema<ISettings>({
+  key: { type: String, required: true, unique: true },
+  value: { type: String, required: true },
+  category: { type: String, enum: ['general', 'social', 'streaming', 'programming', 'custom_code'], required: true },
+  description: { type: String },
+});
+
 export const Song = mongoose.models.Song || mongoose.model<ISong>('Song', SongSchema);
 export const ChatMessage = mongoose.models.ChatMessage || mongoose.model<IChatMessage>('ChatMessage', ChatMessageSchema);
 export const News = mongoose.models.News || mongoose.model<INews>('News', NewsSchema);
@@ -154,3 +169,4 @@ export const Admin = mongoose.models.Admin || mongoose.model<IAdmin>('Admin', Ad
 export const TeamMember = mongoose.models.TeamMember || mongoose.model<ITeamMember>('TeamMember', TeamMemberSchema);
 export const AdBanner = mongoose.models.AdBanner || mongoose.model<IAdBanner>('AdBanner', AdBannerSchema);
 export const Promotion = mongoose.models.Promotion || mongoose.model<IPromotion>('Promotion', PromotionSchema);
+export const Settings = mongoose.models.Settings || mongoose.model<ISettings>('Settings', SettingsSchema);

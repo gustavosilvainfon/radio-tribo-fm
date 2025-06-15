@@ -7,13 +7,39 @@ interface RadioPlayerProps {
   streamUrl?: string;
 }
 
-export default function RadioPlayer({ streamUrl = 'https://ice.fabricahost.com.br:8004/live' }: RadioPlayerProps) {
+export default function RadioPlayer({ streamUrl }: RadioPlayerProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
+  const [radioName, setRadioName] = useState('Rádio Tribo FM');
+  const [currentStreamUrl, setCurrentStreamUrl] = useState('https://stm21.srvstm.com:6874/stream');
   const audioRef = useRef<HTMLAudioElement>(null);
+
+  useEffect(() => {
+    // Load settings from API
+    fetchSettings();
+  }, []);
+
+  const fetchSettings = async () => {
+    try {
+      const response = await fetch('/api/settings?category=streaming');
+      const settings = await response.json();
+      
+      const streamSetting = settings.find((s: any) => s.key === 'radio_stream_url');
+      const nameSetting = settings.find((s: any) => s.key === 'radio_name');
+      
+      if (streamSetting?.value) {
+        setCurrentStreamUrl(streamSetting.value);
+      }
+      if (nameSetting?.value) {
+        setRadioName(nameSetting.value);
+      }
+    } catch (error) {
+      console.error('Error loading settings:', error);
+    }
+  };
 
   useEffect(() => {
     if (audioRef.current) {
@@ -32,9 +58,15 @@ export default function RadioPlayer({ streamUrl = 'https://ice.fabricahost.com.b
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
-        // Reset audio source to force reload
+        // Force reload and try to play
         audioRef.current.load();
-        audioRef.current.currentTime = 0;
+        
+        // Try different approaches for different stream types
+        const streamUrl = streamUrl || currentStreamUrl;
+        
+        // Add random parameter to avoid cache
+        const urlWithCache = streamUrl + (streamUrl.includes('?') ? '&' : '?') + 'cb=' + Date.now();
+        audioRef.current.src = urlWithCache;
         
         await audioRef.current.play();
         setIsPlaying(true);
@@ -43,6 +75,19 @@ export default function RadioPlayer({ streamUrl = 'https://ice.fabricahost.com.b
       console.error('Erro ao reproduzir stream:', error);
       setHasError(true);
       setIsPlaying(false);
+      
+      // Try with proxy if direct connection fails
+      try {
+        if (audioRef.current) {
+          const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(streamUrl || currentStreamUrl)}`;
+          audioRef.current.src = proxyUrl;
+          await audioRef.current.play();
+          setIsPlaying(true);
+          setHasError(false);
+        }
+      } catch (proxyError) {
+        console.error('Proxy também falhou:', proxyError);
+      }
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +122,7 @@ export default function RadioPlayer({ streamUrl = 'https://ice.fabricahost.com.b
         <div className="flex items-center space-x-4">
           <div className="flex items-center space-x-2">
             <Radio className="w-5 h-5 text-blue-500" />
-            <span className="text-sm font-medium">Rádio Tribo FM</span>
+            <span className="text-sm font-medium">{radioName}</span>
             {hasError ? (
               <span className="text-xs text-red-400">Stream indisponível</span>
             ) : isPlaying ? (
@@ -131,7 +176,7 @@ export default function RadioPlayer({ streamUrl = 'https://ice.fabricahost.com.b
 
         <audio
           ref={audioRef}
-          src={streamUrl}
+          src={streamUrl || currentStreamUrl}
           preload="metadata"
           crossOrigin="anonymous"
           onLoadStart={() => setIsLoading(true)}
