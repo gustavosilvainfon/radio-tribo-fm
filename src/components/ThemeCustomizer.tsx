@@ -87,9 +87,11 @@ export default function ThemeCustomizer() {
   const handlePresetChange = (presetName: string) => {
     setSelectedPreset(presetName);
     const preset = defaultThemes[presetName as keyof typeof defaultThemes];
-    setCurrentTheme(preset);
-    if (isPreviewMode) {
-      applyTheme(preset);
+    if (preset) {
+      setCurrentTheme(preset);
+      if (isPreviewMode) {
+        applyTheme(preset);
+      }
     }
   };
 
