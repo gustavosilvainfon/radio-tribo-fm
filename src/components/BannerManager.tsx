@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, Plus, Trash2, Edit, Image as ImageIcon, ExternalLink } from 'lucide-react';
+import { Save, Plus, Trash2, Edit, Image as ImageIcon, ExternalLink, Upload } from 'lucide-react';
 import Image from 'next/image';
 
 interface Banner {
@@ -21,6 +21,7 @@ interface Banner {
 export default function BannerManager() {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [editingBanner, setEditingBanner] = useState<Banner | null>(null);
+  const [uploading, setUploading] = useState(false);
   const [newBanner, setNewBanner] = useState({
     title: '',
     description: '',
@@ -43,6 +44,50 @@ export default function BannerManager() {
       setBanners(data);
     } catch (error) {
       console.error('Erro ao carregar banners:', error);
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Verificar tipo de arquivo
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      alert('Tipo de arquivo não permitido. Use JPG, PNG ou GIF');
+      return;
+    }
+
+    // Verificar tamanho (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      alert('Arquivo muito grande. Máximo 5MB');
+      return;
+    }
+
+    setUploading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setNewBanner(prev => ({ ...prev, imageUrl: data.url }));
+        alert('Upload realizado com sucesso!');
+      } else {
+        const error = await response.json();
+        alert(`Erro no upload: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Erro no upload:', error);
+      alert('Erro ao fazer upload da imagem');
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -222,16 +267,61 @@ export default function BannerManager() {
 
           <div>
             <label className="block text-sm font-medium text-gray-300 mb-2">
-              URL da Imagem
+              Imagem do Banner
             </label>
-            <input
-              type="url"
-              value={newBanner.imageUrl}
-              onChange={(e) => setNewBanner({ ...newBanner, imageUrl: e.target.value })}
-              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white"
-              placeholder="https://exemplo.com/banner.jpg"
-              required
-            />
+            
+            {/* Preview da imagem */}
+            {newBanner.imageUrl && (
+              <div className="mb-4 p-3 bg-gray-700 rounded-lg">
+                <p className="text-sm text-gray-300 mb-2">Preview:</p>
+                <img
+                  src={newBanner.imageUrl}
+                  alt="Preview do banner"
+                  className="max-w-full h-32 object-contain rounded border"
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    target.style.display = 'none';
+                  }}
+                />
+              </div>
+            )}
+
+            {/* Upload de arquivo */}
+            <div className="space-y-3">
+              <div>
+                <label className="block w-full">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    disabled={uploading}
+                  />
+                  <div className={`w-full px-4 py-3 border-2 border-dashed rounded-lg text-center cursor-pointer transition-colors ${
+                    uploading ? 'border-blue-500 bg-blue-50/10' : 'border-gray-600 hover:border-blue-500'
+                  }`}>
+                    <Upload className="w-6 h-6 mx-auto mb-2 text-gray-400" />
+                    <p className="text-sm text-gray-300">
+                      {uploading ? 'Fazendo upload...' : 'Clique para fazer upload (PNG, JPG, GIF)'}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">Máximo 5MB</p>
+                  </div>
+                </label>
+              </div>
+
+              <div className="text-center text-gray-400 text-sm">OU</div>
+
+              {/* URL manual */}
+              <div>
+                <input
+                  type="url"
+                  value={newBanner.imageUrl}
+                  onChange={(e) => setNewBanner({ ...newBanner, imageUrl: e.target.value })}
+                  className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white"
+                  placeholder="Ou cole uma URL de imagem aqui"
+                />
+              </div>
+            </div>
           </div>
 
           <div>

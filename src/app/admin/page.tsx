@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Lock, Settings, ArrowLeft, Palette, Users, Image as ImageIcon, Gift, Cog, Search } from 'lucide-react';
+import { Lock, Settings, ArrowLeft, Palette, Users, Image as ImageIcon, Gift, Cog, Search, Clock } from 'lucide-react';
 import Link from 'next/link';
 import ThemeCustomizer from '@/components/ThemeCustomizer';
 import TeamManager from '@/components/TeamManager';
@@ -10,6 +10,7 @@ import PromotionManager from '@/components/PromotionManager';
 import SettingsManager from '@/components/SettingsManager';
 import SEOManager from '@/components/SEOManager';
 import BrandingManager from '@/components/BrandingManager';
+import ProgramManager from '@/components/ProgramManager';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -18,7 +19,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [songs, setSongs] = useState<Song[]>([]);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
-  const [activeTab, setActiveTab] = useState<'team' | 'banners' | 'promotions' | 'settings' | 'theme' | 'seo' | 'branding'>('banners');
+  const [activeTab, setActiveTab] = useState<'team' | 'banners' | 'promotions' | 'programs' | 'settings' | 'theme' | 'seo' | 'branding'>('banners');
   const [newSong, setNewSong] = useState({
     title: '',
     artist: '',
@@ -337,6 +338,17 @@ export default function AdminPage() {
             <span>Promoções</span>
           </button>
           <button
+            onClick={() => setActiveTab('programs')}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
+              activeTab === 'programs'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            <Clock className="w-5 h-5" />
+            <span>Programação</span>
+          </button>
+          <button
             onClick={() => setActiveTab('settings')}
             className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
               activeTab === 'settings'
@@ -570,6 +582,13 @@ export default function AdminPage() {
         {activeTab === 'promotions' && (
           <div className="max-w-7xl mx-auto">
             <PromotionManager />
+          </div>
+        )}
+
+        {/* Program Management */}
+        {activeTab === 'programs' && (
+          <div className="max-w-7xl mx-auto">
+            <ProgramManager />
           </div>
         )}
 

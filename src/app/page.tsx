@@ -5,6 +5,7 @@ import News from '@/components/News';
 import Team from '@/components/Team';
 import Promotions from '@/components/Promotions';
 import AdBanner from '@/components/AdBanner';
+import ProgramSchedule from '@/components/ProgramSchedule';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { Headphones, MessageCircle, Newspaper } from 'lucide-react';
 
@@ -153,12 +154,9 @@ export default function Home() {
             
             <div>
               <h4 className="text-lg font-semibold text-white mb-4">Nossa Programação</h4>
-              <ul className="space-y-2 text-gray-400">
-                <li>🌅 Bom dia Tribo - 6h às 10h</li>
-                <li>🤠 100% Sertanejo - 14h às 18h</li>
-                <li>🎵 Tribo Mania - 18h às 22h</li>
-                <li>📰 Tribo News - Toda hora</li>
-              </ul>
+              <ErrorBoundary>
+                <ProgramSchedule />
+              </ErrorBoundary>
             </div>
           </div>
           
