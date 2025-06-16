@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Lock, Music, Settings, Save, Plus, Trash2, Edit, ArrowLeft, Palette, Users, Image as ImageIcon, Gift, Cog, Search } from 'lucide-react';
+import { Lock, Music, Settings, Save, Plus, Trash2, Edit, ArrowLeft, Palette, Users, Image as ImageIcon, Gift, Cog, Search, Radio } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import ThemeCustomizer from '@/components/ThemeCustomizer';
@@ -10,6 +10,7 @@ import BannerManager from '@/components/BannerManager';
 import PromotionManager from '@/components/PromotionManager';
 import SettingsManager from '@/components/SettingsManager';
 import SEOManager from '@/components/SEOManager';
+import CurrentSongManager from '@/components/CurrentSongManager';
 import { Song } from '@/types';
 
 export default function AdminPage() {
@@ -19,7 +20,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [songs, setSongs] = useState<Song[]>([]);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
-  const [activeTab, setActiveTab] = useState<'songs' | 'team' | 'banners' | 'promotions' | 'settings' | 'theme' | 'seo'>('songs');
+  const [activeTab, setActiveTab] = useState<'songs' | 'team' | 'banners' | 'promotions' | 'settings' | 'theme' | 'seo' | 'current-song'>('songs');
   const [newSong, setNewSong] = useState({
     title: '',
     artist: '',
@@ -282,6 +283,17 @@ export default function AdminPage() {
         {/* Tabs */}
         <div className="flex flex-wrap gap-4 mb-8">
           <button
+            onClick={() => setActiveTab('current-song')}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
+              activeTab === 'current-song'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            <Radio className="w-5 h-5" />
+            <span>Música Atual</span>
+          </button>
+          <button
             onClick={() => setActiveTab('songs')}
             className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
               activeTab === 'songs'
@@ -290,7 +302,7 @@ export default function AdminPage() {
             }`}
           >
             <Music className="w-5 h-5" />
-            <span>Músicas</span>
+            <span>Top Songs</span>
           </button>
           <button
             onClick={() => setActiveTab('team')}
@@ -359,6 +371,13 @@ export default function AdminPage() {
             <span>SEO</span>
           </button>
         </div>
+
+        {/* Current Song Management */}
+        {activeTab === 'current-song' && (
+          <div className="max-w-4xl mx-auto">
+            <CurrentSongManager />
+          </div>
+        )}
 
         {/* Songs Management */}
         {activeTab === 'songs' && (
