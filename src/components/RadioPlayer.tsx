@@ -58,38 +58,77 @@ export default function RadioPlayer({ streamUrl }: RadioPlayerProps) {
         audioRef.current.pause();
         setIsPlaying(false);
       } else {
-        // Force reload and try to play
-        audioRef.current.load();
+        const targetUrl = streamUrl || currentStreamUrl;
+        console.log('Tentando conectar ao stream:', targetUrl);
         
-        // Try different approaches for different stream types
-        const streamUrl = streamUrl || currentStreamUrl;
-        
-        // Add random parameter to avoid cache
-        const urlWithCache = streamUrl + (streamUrl.includes('?') ? '&' : '?') + 'cb=' + Date.now();
-        audioRef.current.src = urlWithCache;
-        
-        await audioRef.current.play();
-        setIsPlaying(true);
+        // Method 1: Direct connection with cache busting
+        await tryDirectConnection(targetUrl);
       }
     } catch (error) {
       console.error('Erro ao reproduzir stream:', error);
       setHasError(true);
       setIsPlaying(false);
-      
-      // Try with proxy if direct connection fails
-      try {
-        if (audioRef.current) {
-          const proxyUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(streamUrl || currentStreamUrl)}`;
-          audioRef.current.src = proxyUrl;
-          await audioRef.current.play();
-          setIsPlaying(true);
-          setHasError(false);
-        }
-      } catch (proxyError) {
-        console.error('Proxy também falhou:', proxyError);
-      }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const tryDirectConnection = async (url: string) => {
+    if (!audioRef.current) return;
+    
+    try {
+      // For Shoutcast/Icecast servers, try multiple approaches
+      const attempts = [
+        // Method 1: Direct URL with cache buster
+        url + (url.includes('?') ? '&' : '?') + 'cb=' + Date.now(),
+        
+        // Method 2: Without cache buster
+        url,
+        
+        // Method 3: Try with different port format (remove :6874 and add /stream)
+        url.replace(':6874/stream', '/stream'),
+        
+        // Method 4: Try with listen.pls format
+        url.replace('/stream', '/listen.pls'),
+        
+        // Method 5: Try with different stream format
+        url.replace('/stream', '/;stream.mp3'),
+        
+        // Method 6: Our own proxy API
+        `/api/stream?url=${encodeURIComponent(url)}`,
+        
+        // Method 7: CORS proxy
+        `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+      ];
+
+      for (let i = 0; i < attempts.length; i++) {
+        try {
+          console.log(`Tentativa ${i + 1}: ${attempts[i]}`);
+          
+          audioRef.current.src = attempts[i];
+          audioRef.current.load();
+          
+          // Wait a bit for the stream to load
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          await audioRef.current.play();
+          
+          console.log(`✅ Sucesso na tentativa ${i + 1}`);
+          setIsPlaying(true);
+          setHasError(false);
+          return;
+          
+        } catch (attemptError) {
+          console.log(`❌ Tentativa ${i + 1} falhou:`, attemptError);
+          
+          if (i === attempts.length - 1) {
+            throw new Error('Todas as tentativas falharam');
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Todas as tentativas de conexão falharam:', error);
+      throw error;
     }
   };
 
@@ -124,7 +163,15 @@ export default function RadioPlayer({ streamUrl }: RadioPlayerProps) {
             <Radio className="w-5 h-5 text-blue-500" />
             <span className="text-sm font-medium">{radioName}</span>
             {hasError ? (
-              <span className="text-xs text-red-400">Stream indisponível</span>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs text-red-400">Stream indisponível</span>
+                <button
+                  onClick={() => window.open('/admin', '_blank')}
+                  className="text-xs bg-red-600 hover:bg-red-700 px-2 py-1 rounded transition-colors"
+                >
+                  Configurar
+                </button>
+              </div>
             ) : isPlaying ? (
               <div className="flex items-center space-x-2">
                 <div className="flex space-x-1">
@@ -176,31 +223,62 @@ export default function RadioPlayer({ streamUrl }: RadioPlayerProps) {
 
         <audio
           ref={audioRef}
-          src={streamUrl || currentStreamUrl}
-          preload="metadata"
+          preload="none"
           crossOrigin="anonymous"
-          onLoadStart={() => setIsLoading(true)}
+          onLoadStart={() => {
+            console.log('🔄 Iniciando carregamento do stream...');
+            setIsLoading(true);
+          }}
           onCanPlay={() => {
+            console.log('✅ Stream pronto para reproduzir');
+            setIsLoading(false);
+            setHasError(false);
+          }}
+          onCanPlayThrough={() => {
+            console.log('✅ Stream completamente carregado');
             setIsLoading(false);
             setHasError(false);
           }}
           onPlaying={() => {
+            console.log('▶️ Stream tocando');
             setIsPlaying(true);
             setIsLoading(false);
+            setHasError(false);
           }}
-          onPause={() => setIsPlaying(false)}
-          onEnded={() => setIsPlaying(false)}
+          onPause={() => {
+            console.log('⏸️ Stream pausado');
+            setIsPlaying(false);
+          }}
+          onEnded={() => {
+            console.log('⏹️ Stream finalizado');
+            setIsPlaying(false);
+          }}
           onError={(e) => {
-            console.error('Erro no stream:', e);
+            const error = e.currentTarget.error;
+            console.error('❌ Erro no stream:', {
+              code: error?.code,
+              message: error?.message,
+              src: e.currentTarget.src
+            });
             setIsLoading(false);
             setIsPlaying(false);
             setHasError(true);
           }}
           onStalled={() => {
-            console.log('Stream travado, tentando reconectar...');
-            if (isPlaying) {
-              audioRef.current?.load();
+            console.log('⚠️ Stream travado, tentando reconectar...');
+            if (isPlaying && audioRef.current) {
+              setTimeout(() => {
+                audioRef.current?.load();
+              }, 2000);
             }
+          }}
+          onWaiting={() => {
+            console.log('⏳ Aguardando dados do stream...');
+            setIsLoading(true);
+          }}
+          onLoadedData={() => {
+            console.log('📦 Dados do stream carregados');
+            setIsLoading(false);
           }}
         />
       </div>

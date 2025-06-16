@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { Save, Settings as SettingsIcon, Globe, Share2, Radio, Calendar, Code } from 'lucide-react';
+import StreamTester from './StreamTester';
 
 interface Setting {
   key: string;
@@ -199,14 +200,17 @@ export default function SettingsManager() {
           </div>
 
           {activeCategory === 'streaming' && (
-            <div className="mt-8 p-4 bg-gray-700 rounded-lg">
-              <h4 className="text-lg font-semibold text-white mb-3">Como configurar o streaming</h4>
-              <div className="space-y-2 text-sm text-gray-300">
-                <p>1. <strong>Obtenha a URL</strong> do seu provedor de streaming</p>
-                <p>2. <strong>Cole a URL completa</strong> no campo acima</p>
-                <p>3. <strong>Clique em "Salvar Tudo"</strong></p>
-                <p>4. <strong>Teste o player</strong> na página principal</p>
+            <div>
+              <div className="mt-8 p-4 bg-gray-700 rounded-lg">
+                <h4 className="text-lg font-semibold text-white mb-3">Como configurar o streaming</h4>
+                <div className="space-y-2 text-sm text-gray-300">
+                  <p>1. <strong>Use o testador abaixo</strong> para verificar qual URL funciona</p>
+                  <p>2. <strong>Cole a URL que funcionou</strong> no campo acima</p>
+                  <p>3. <strong>Clique em "Salvar Tudo"</strong></p>
+                  <p>4. <strong>Teste o player</strong> na página principal</p>
+                </div>
               </div>
+              <StreamTester />
             </div>
           )}
 
