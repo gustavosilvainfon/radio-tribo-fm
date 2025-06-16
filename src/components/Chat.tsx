@@ -24,7 +24,14 @@ export default function Chat() {
   }, [username]);
 
   useEffect(() => {
-    scrollToBottom();
+    // Only scroll if there are new messages and user is at the bottom
+    if (messages.length > 0) {
+      const timer = setTimeout(() => {
+        scrollToBottom();
+      }, 100); // Small delay to avoid too frequent scrolling
+      
+      return () => clearTimeout(timer);
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -52,7 +59,8 @@ export default function Chat() {
         'MelodyHunter', 'RhythmKing', 'AudioPhile', 'TuneSeeker', 'BassHead'
       ];
 
-      if (Math.random() > 0.85) { // 15% chance to receive a message (less frequent)
+      // Only add messages if chat is visible and user is likely engaged
+      if (Math.random() > 0.9) { // 10% chance to receive a message (even less frequent)
         const newMsg: ChatMessage = {
           id: Date.now().toString(),
           username: randomUsernames[Math.floor(Math.random() * randomUsernames.length)],
@@ -64,7 +72,7 @@ export default function Chat() {
           return newMessages;
         });
       }
-    }, 15000); // Increased to 15 seconds
+    }, 30000); // Increased to 30 seconds
 
     return () => clearInterval(interval);
   }, []);
@@ -109,7 +117,19 @@ export default function Chat() {
   };
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (chatContainerRef.current && messagesEndRef.current) {
+      const chatContainer = chatContainerRef.current;
+      const isUserAtBottom = chatContainer.scrollTop >= chatContainer.scrollHeight - chatContainer.clientHeight - 50;
+      
+      // Only auto-scroll if user is near the bottom and chat is visible
+      if (isUserAtBottom) {
+        // Use scrollTo instead of scrollIntoView to avoid affecting page scroll
+        chatContainer.scrollTo({
+          top: chatContainer.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    }
   };
 
   const formatTime = (date: Date) => {
