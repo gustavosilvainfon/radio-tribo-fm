@@ -200,17 +200,18 @@ export async function GET() {
     }
 
     // 3. Verificar se a música "terminou" e precisa trocar
-    const timeSinceLastPlay = Date.now() - currentSongData.playedAt.getTime();
-    const songDuration = (currentSongData.duration || 180) * 1000;
+    let timeSinceLastPlay = Date.now() - currentSongData.playedAt.getTime();
+    let songDuration = (currentSongData.duration || 180) * 1000;
     
     if (timeSinceLastPlay > songDuration) {
       // Gerar nova música
       currentSongData = await generateCurrentSong();
+      // Recalcular após gerar nova música
+      timeSinceLastPlay = Date.now() - currentSongData.playedAt.getTime();
+      songDuration = (currentSongData.duration || 180) * 1000;
     }
 
     // Calcular progresso
-    const timeSinceLastPlay = Date.now() - currentSongData.playedAt.getTime();
-    const songDuration = (currentSongData.duration || 180) * 1000;
     const progress = Math.min((timeSinceLastPlay / songDuration) * 100, 100);
 
     return NextResponse.json({
