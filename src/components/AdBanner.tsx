@@ -33,16 +33,70 @@ export default function AdBanner({ position, size = 'medium', className = '' }: 
     fetchBanners();
   }, []);
 
+  useEffect(() => {
+    // Auto rotate banners every 10 seconds
+    if (banners.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentAdIndex(prev => (prev + 1) % banners.length);
+      }, 10000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [banners.length]);
+
   const fetchBanners = async () => {
     try {
       const response = await fetch('/api/banners');
       const data = await response.json();
       // Filter banners by position
       const positionBanners = data.filter((banner: Banner) => banner.position === position && banner.isActive);
-      setBanners(positionBanners);
+      
+      if (positionBanners.length === 0) {
+        // Se não há banners, criar banners de exemplo
+        const defaultBanners = getDefaultBanners(position);
+        setBanners(defaultBanners);
+      } else {
+        setBanners(positionBanners);
+      }
     } catch (error) {
       console.error('Erro ao buscar banners:', error);
+      // Em caso de erro, usar banners padrão
+      const defaultBanners = getDefaultBanners(position);
+      setBanners(defaultBanners);
     }
+  };
+
+  const getDefaultBanners = (pos: string): Banner[] => {
+    const defaults = [
+      {
+        id: `default-${pos}-1`,
+        title: 'Anuncie na Rádio Tribo FM',
+        description: 'Alcance milhares de ouvintes todos os dias com seus produtos e serviços',
+        imageUrl: 'https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=200&fit=crop&auto=format&q=80',
+        link: '/admin',
+        sponsor: 'Rádio Tribo FM',
+        category: 'Publicidade',
+        position: pos as any,
+        isActive: true,
+        order: 1,
+        clickCount: 0
+      },
+      {
+        id: `default-${pos}-2`,
+        title: 'Promoção Especial',
+        description: 'Concorra a prêmios incríveis participando dos nossos programas ao vivo',
+        imageUrl: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=200&fit=crop&auto=format&q=80',
+        link: '#promotions',
+        sponsor: 'Rádio Tribo FM',
+        category: 'Promoção',
+        position: pos as any,
+        isActive: true,
+        order: 2,
+        clickCount: 0
+      }
+    ];
+    
+    return defaults;
   };
 
   const getSizeClasses = () => {

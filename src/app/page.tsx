@@ -1,15 +1,12 @@
 import Header from '@/components/Header';
 import RadioPlayer from '@/components/RadioPlayer';
-import CurrentSong from '@/components/CurrentSong';
-import TopSongs from '@/components/TopSongs';
-import TopSongsSidebar from '@/components/TopSongsSidebar';
 import Chat from '@/components/Chat';
 import News from '@/components/News';
 import Team from '@/components/Team';
 import Promotions from '@/components/Promotions';
 import AdBanner from '@/components/AdBanner';
 import ErrorBoundary from '@/components/ErrorBoundary';
-import { Headphones, Music, MessageCircle, Newspaper } from 'lucide-react';
+import { Headphones, MessageCircle, Newspaper } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -43,10 +40,6 @@ export default function Home() {
                 <span>Ao Vivo 24/7</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Music className="w-4 h-4" />
-                <span>Top Hits</span>
-              </div>
-              <div className="flex items-center space-x-2">
                 <MessageCircle className="w-4 h-4" />
                 <span>Chat Interativo</span>
               </div>
@@ -67,20 +60,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Current Song Section */}
-      <section className="py-8 bg-gray-800 border-t border-gray-700">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto">
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold text-white mb-2">Tocando Agora</h2>
-              <p className="text-gray-400">Acompanhe o que está rolando na Rádio Tribo FM</p>
-            </div>
-            <ErrorBoundary>
-              <CurrentSong />
-            </ErrorBoundary>
-          </div>
-        </div>
-      </section>
+
 
       {/* Banner publicitário superior */}
       <div className="container mx-auto px-4 py-4">
@@ -118,40 +98,25 @@ export default function Home() {
               <News />
             </ErrorBoundary>
 
-            {/* Top Songs Section Completa (oculta no desktop com sidebar) */}
-            <div className="lg:hidden">
-              <ErrorBoundary>
-                <TopSongs />
-              </ErrorBoundary>
-            </div>
-
-
           </div>
 
           {/* Sidebar direita */}
           <div className="lg:col-span-1 hidden lg:block">
             <div className="space-y-6 sticky top-4">
-              {/* Top Songs Sidebar */}
-              <ErrorBoundary>
-                <TopSongsSidebar />
-              </ErrorBoundary>
-
               {/* Banner lateral */}
               <AdBanner position="side" size="small" />
 
               {/* Segundo banner lateral */}
+              <AdBanner position="side" size="small" />
+
+              {/* Terceiro banner lateral */}
               <AdBanner position="side" size="small" />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Top Songs Section Completa (para desktop quando solicitada) */}
-      <div id="top-songs" className="hidden">
-        <ErrorBoundary>
-          <TopSongs />
-        </ErrorBoundary>
-      </div>
+
 
       {/* Footer */}
       <footer className="bg-gray-800 border-t border-gray-700 py-12 mb-20">
