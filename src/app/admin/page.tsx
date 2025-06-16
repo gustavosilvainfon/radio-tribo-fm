@@ -1,17 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Lock, Music, Settings, Save, Plus, Trash2, Edit, ArrowLeft, Palette, Users, Image as ImageIcon, Gift, Cog, Search, Radio } from 'lucide-react';
+import { Lock, Settings, ArrowLeft, Palette, Users, Image as ImageIcon, Gift, Cog, Search } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 import ThemeCustomizer from '@/components/ThemeCustomizer';
 import TeamManager from '@/components/TeamManager';
 import BannerManager from '@/components/BannerManager';
 import PromotionManager from '@/components/PromotionManager';
 import SettingsManager from '@/components/SettingsManager';
 import SEOManager from '@/components/SEOManager';
-import CurrentSongManager from '@/components/CurrentSongManager';
-import { Song } from '@/types';
+import BrandingManager from '@/components/BrandingManager';
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -20,7 +18,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [songs, setSongs] = useState<Song[]>([]);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
-  const [activeTab, setActiveTab] = useState<'songs' | 'team' | 'banners' | 'promotions' | 'settings' | 'theme' | 'seo' | 'current-song'>('songs');
+  const [activeTab, setActiveTab] = useState<'team' | 'banners' | 'promotions' | 'settings' | 'theme' | 'seo' | 'branding'>('banners');
   const [newSong, setNewSong] = useState({
     title: '',
     artist: '',
@@ -283,27 +281,28 @@ export default function AdminPage() {
         {/* Tabs */}
         <div className="flex flex-wrap gap-4 mb-8">
           <button
-            onClick={() => setActiveTab('current-song')}
+            onClick={() => setActiveTab('banners')}
             className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
-              activeTab === 'current-song'
+              activeTab === 'banners'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
             }`}
           >
-            <Radio className="w-5 h-5" />
-            <span>Música Atual</span>
+            <ImageIcon className="w-5 h-5" />
+            <span>Banners</span>
           </button>
           <button
-            onClick={() => setActiveTab('songs')}
+            onClick={() => setActiveTab('branding')}
             className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
-              activeTab === 'songs'
+              activeTab === 'branding'
                 ? 'bg-blue-600 text-white'
                 : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
             }`}
           >
-            <Music className="w-5 h-5" />
-            <span>Top Songs</span>
+            <ImageIcon className="w-5 h-5" />
+            <span>Logo & Favicon</span>
           </button>
+
           <button
             onClick={() => setActiveTab('team')}
             className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
@@ -372,10 +371,17 @@ export default function AdminPage() {
           </button>
         </div>
 
-        {/* Current Song Management */}
-        {activeTab === 'current-song' && (
-          <div className="max-w-4xl mx-auto">
-            <CurrentSongManager />
+        {/* Branding Management */}
+        {activeTab === 'branding' && (
+          <div className="max-w-7xl mx-auto">
+            <BrandingManager />
+          </div>
+        )}
+
+        {/* Banner Management */}
+        {activeTab === 'banners' && (
+          <div className="max-w-7xl mx-auto">
+            <BannerManager />
           </div>
         )}
 

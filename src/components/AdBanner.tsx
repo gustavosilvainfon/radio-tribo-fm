@@ -125,10 +125,10 @@ export default function AdBanner({ position, size = 'medium', className = '' }: 
     }
   };
 
-  // Filter and get current ad for this position
+  // Get banners for this position  
   const positionBanners = banners.filter(banner => banner.position === position && banner.isActive);
   
-  if (!isVisible || positionBanners.length === 0) return null;
+  if (!isVisible || banners.length === 0) return null;
   
   const currentAd = positionBanners[currentAdIndex % positionBanners.length];
 

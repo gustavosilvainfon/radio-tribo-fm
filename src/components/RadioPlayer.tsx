@@ -257,19 +257,9 @@ export default function RadioPlayer({ streamUrl }: RadioPlayerProps) {
                 )}
               </div>
               
-              {isPlaying && currentSongData ? (
-                <div className="flex flex-col">
-                  <span className="text-sm text-white font-medium truncate max-w-xs">
-                    {currentSongData.title}
-                  </span>
-                  <span className="text-xs text-gray-300 truncate max-w-xs">
-                    {currentSongData.artist}
-                    {currentSongData.album && ` • ${currentSongData.album}`}
-                  </span>
-                </div>
-              ) : isPlaying ? (
+              {isPlaying ? (
                 <span className="text-xs text-gray-300 truncate max-w-xs">
-                  {currentSong}
+                  Ouvindo ao vivo
                 </span>
               ) : (
                 <span className="text-xs text-gray-400">Clique para ouvir</span>
@@ -295,11 +285,7 @@ export default function RadioPlayer({ streamUrl }: RadioPlayerProps) {
                     <div className="w-1 h-4 bg-green-500 animate-pulse delay-100"></div>
                     <div className="w-1 h-4 bg-green-500 animate-pulse delay-200"></div>
                   </div>
-                  {currentSongData && currentSongData.progress && (
-                    <div className="text-xs text-gray-300">
-                      {Math.round(currentSongData.progress)}%
-                    </div>
-                  )}
+
                 </div>
               ) : null}
             </div>
