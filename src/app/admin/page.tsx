@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Lock, Music, Settings, Save, Plus, Trash2, Edit, ArrowLeft, Palette, Users, Image as ImageIcon, Gift, Cog } from 'lucide-react';
+import { Lock, Music, Settings, Save, Plus, Trash2, Edit, ArrowLeft, Palette, Users, Image as ImageIcon, Gift, Cog, Search } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import ThemeCustomizer from '@/components/ThemeCustomizer';
@@ -9,6 +9,7 @@ import TeamManager from '@/components/TeamManager';
 import BannerManager from '@/components/BannerManager';
 import PromotionManager from '@/components/PromotionManager';
 import SettingsManager from '@/components/SettingsManager';
+import SEOManager from '@/components/SEOManager';
 import { Song } from '@/types';
 
 export default function AdminPage() {
@@ -18,7 +19,7 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false);
   const [songs, setSongs] = useState<Song[]>([]);
   const [editingSong, setEditingSong] = useState<Song | null>(null);
-  const [activeTab, setActiveTab] = useState<'songs' | 'team' | 'banners' | 'promotions' | 'settings' | 'theme'>('songs');
+  const [activeTab, setActiveTab] = useState<'songs' | 'team' | 'banners' | 'promotions' | 'settings' | 'theme' | 'seo'>('songs');
   const [newSong, setNewSong] = useState({
     title: '',
     artist: '',
@@ -346,6 +347,17 @@ export default function AdminPage() {
             <Palette className="w-5 h-5" />
             <span>Tema</span>
           </button>
+          <button
+            onClick={() => setActiveTab('seo')}
+            className={`flex items-center space-x-2 px-6 py-3 rounded-lg transition-colors ${
+              activeTab === 'seo'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            <Search className="w-5 h-5" />
+            <span>SEO</span>
+          </button>
         </div>
 
         {/* Songs Management */}
@@ -547,6 +559,13 @@ export default function AdminPage() {
         {activeTab === 'theme' && (
           <div className="max-w-4xl mx-auto">
             <ThemeCustomizer />
+          </div>
+        )}
+
+        {/* SEO Management */}
+        {activeTab === 'seo' && (
+          <div className="max-w-7xl mx-auto">
+            <SEOManager />
           </div>
         )}
       </div>

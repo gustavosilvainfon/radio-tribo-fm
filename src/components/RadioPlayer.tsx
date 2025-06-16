@@ -2,25 +2,56 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { Play, Pause, Volume2, VolumeX, Radio } from 'lucide-react';
+import { useRadio } from '@/context/RadioContext';
 
 interface RadioPlayerProps {
   streamUrl?: string;
 }
 
 export default function RadioPlayer({ streamUrl }: RadioPlayerProps) {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.7);
-  const [isMuted, setIsMuted] = useState(false);
+  const { isPlaying, setIsPlaying, volume, setVolume, isMuted, setIsMuted } = useRadio();
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [radioName, setRadioName] = useState('Rádio Tribo FM');
   const [currentStreamUrl, setCurrentStreamUrl] = useState('https://stm21.srvstm.com:6874/stream');
+  const [currentSong, setCurrentSong] = useState('Clique para ouvir ao vivo');
+  const [hasUserInteracted, setHasUserInteracted] = useState(false);
+  const [currentSongData, setCurrentSongData] = useState<any>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   useEffect(() => {
     // Load settings from API
     fetchSettings();
+    
+    // Try autoplay after user interaction
+    const handleFirstInteraction = () => {
+      setHasUserInteracted(true);
+      if (!isPlaying && !hasError) {
+        setTimeout(() => {
+          togglePlay();
+        }, 1000);
+      }
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('keydown', handleFirstInteraction);
+    };
+
+    document.addEventListener('click', handleFirstInteraction);
+    document.addEventListener('keydown', handleFirstInteraction);
+
+    return () => {
+      document.removeEventListener('click', handleFirstInteraction);
+      document.removeEventListener('keydown', handleFirstInteraction);
+    };
   }, []);
+
+  useEffect(() => {
+    // Fetch current song info periodically
+    if (isPlaying) {
+      fetchCurrentSong();
+      const songInterval = setInterval(fetchCurrentSong, 30000); // Every 30 seconds
+      return () => clearInterval(songInterval);
+    }
+  }, [isPlaying]);
 
   const fetchSettings = async () => {
     try {
@@ -38,6 +69,57 @@ export default function RadioPlayer({ streamUrl }: RadioPlayerProps) {
       }
     } catch (error) {
       console.error('Error loading settings:', error);
+    }
+  };
+
+  const fetchCurrentSong = async () => {
+    try {
+      // First try to get current song from our API
+      const response = await fetch('/api/current-song');
+      if (response.ok) {
+        const songData = await response.json();
+        setCurrentSongData(songData);
+        setCurrentSong(`${songData.artist} - ${songData.title}`);
+        return;
+      }
+    } catch (error) {
+      console.error('Error fetching current song:', error);
+    }
+
+    try {
+      // Fallback: Try to get current song from stream metadata
+      const targetStreamUrl = streamUrl || currentStreamUrl;
+      
+      // For Shoutcast streams, try to get metadata
+      const metadataUrl = targetStreamUrl.replace('/stream', '/7.html') + '?cb=' + Date.now();
+      
+      const response = await fetch(`/api/stream?url=${encodeURIComponent(metadataUrl)}`);
+      if (response.ok) {
+        const text = await response.text();
+        
+        // Parse Shoutcast 7.html format
+        if (text.includes(',')) {
+          const parts = text.split(',');
+          if (parts.length >= 7) {
+            const songTitle = parts[6];
+            if (songTitle && songTitle.trim() !== '') {
+              setCurrentSong(songTitle.trim());
+              return;
+            }
+          }
+        }
+      }
+    } catch (error) {
+      // Final fallback to simulated current song
+      const fallbackSongs = [
+        'Ao Vivo na Rádio Tribo FM',
+        'Sua música favorita está tocando',
+        'Música ao vivo - Rádio Tribo FM',
+        'Sintonize na melhor música',
+        'Transmissão ao vivo',
+      ];
+      
+      setCurrentSong(fallbackSongs[Math.floor(Math.random() * fallbackSongs.length)]);
     }
   };
 
@@ -158,32 +240,69 @@ export default function RadioPlayer({ streamUrl }: RadioPlayerProps) {
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-gray-800 border-t border-gray-700 p-4 z-50">
       <div className="container mx-auto flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className="flex items-center space-x-2">
-            <Radio className="w-5 h-5 text-blue-500" />
-            <span className="text-sm font-medium">{radioName}</span>
-            {hasError ? (
+        <div className="flex items-center space-x-4 flex-grow min-w-0">
+          <div className="flex items-center space-x-3">
+            <Radio className="w-6 h-6 text-blue-500" />
+            
+            {/* Song Info */}
+            <div className="flex flex-col min-w-0 flex-grow">
               <div className="flex items-center space-x-2">
-                <span className="text-xs text-red-400">Stream indisponível</span>
-                <button
-                  onClick={() => window.open('/admin', '_blank')}
-                  className="text-xs bg-red-600 hover:bg-red-700 px-2 py-1 rounded transition-colors"
-                >
-                  Configurar
-                </button>
+                <span className="text-sm font-medium text-white">{radioName}</span>
+                {hasError ? (
+                  <span className="text-xs bg-red-600 px-2 py-1 rounded text-white">OFFLINE</span>
+                ) : isPlaying ? (
+                  <span className="text-xs bg-green-600 px-2 py-1 rounded text-white animate-pulse">AO VIVO</span>
+                ) : (
+                  <span className="text-xs bg-gray-600 px-2 py-1 rounded text-gray-300">PARADO</span>
+                )}
               </div>
-            ) : isPlaying ? (
-              <div className="flex items-center space-x-2">
-                <div className="flex space-x-1">
-                  <div className="w-1 h-4 bg-red-500 animate-pulse"></div>
-                  <div className="w-1 h-4 bg-red-500 animate-pulse delay-100"></div>
-                  <div className="w-1 h-4 bg-red-500 animate-pulse delay-200"></div>
+              
+              {isPlaying && currentSongData ? (
+                <div className="flex flex-col">
+                  <span className="text-sm text-white font-medium truncate max-w-xs">
+                    {currentSongData.title}
+                  </span>
+                  <span className="text-xs text-gray-300 truncate max-w-xs">
+                    {currentSongData.artist}
+                    {currentSongData.album && ` • ${currentSongData.album}`}
+                  </span>
                 </div>
-                <span className="text-xs text-green-400">AO VIVO</span>
-              </div>
-            ) : (
-              <span className="text-xs text-gray-400">Offline</span>
-            )}
+              ) : isPlaying ? (
+                <span className="text-xs text-gray-300 truncate max-w-xs">
+                  {currentSong}
+                </span>
+              ) : (
+                <span className="text-xs text-gray-400">Clique para ouvir</span>
+              )}
+            </div>
+
+            {/* Status Indicators */}
+            <div className="flex items-center space-x-3">
+              {hasError ? (
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs text-red-400">Stream indisponível</span>
+                  <button
+                    onClick={() => window.open('/admin', '_blank')}
+                    className="text-xs bg-red-600 hover:bg-red-700 px-2 py-1 rounded transition-colors"
+                  >
+                    Configurar
+                  </button>
+                </div>
+              ) : isPlaying ? (
+                <div className="flex items-center space-x-2">
+                  <div className="flex space-x-1">
+                    <div className="w-1 h-4 bg-green-500 animate-pulse"></div>
+                    <div className="w-1 h-4 bg-green-500 animate-pulse delay-100"></div>
+                    <div className="w-1 h-4 bg-green-500 animate-pulse delay-200"></div>
+                  </div>
+                  {currentSongData && currentSongData.progress && (
+                    <div className="text-xs text-gray-300">
+                      {Math.round(currentSongData.progress)}%
+                    </div>
+                  )}
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
 

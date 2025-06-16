@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Save, Plus, Trash2, Edit, Users } from 'lucide-react';
 import Image from 'next/image';
+import ImageUpload from './ImageUpload';
 
 interface TeamMember {
   id: string;
@@ -206,34 +207,29 @@ export default function TeamManager() {
             </div>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                URL da Foto
-              </label>
-              <input
-                type="url"
-                value={newMember.imageUrl}
-                onChange={(e) => setNewMember({ ...newMember, imageUrl: e.target.value })}
-                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white"
-                placeholder="https://exemplo.com/foto.jpg"
-                required
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Foto do Membro
+            </label>
+            <ImageUpload
+              value={newMember.imageUrl}
+              onChange={(url) => setNewMember({ ...newMember, imageUrl: url })}
+              placeholder="Cole o link da foto do membro aqui"
+            />
+          </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">
-                Ícone (Emoji)
-              </label>
-              <input
-                type="text"
-                value={newMember.icon}
-                onChange={(e) => setNewMember({ ...newMember, icon: e.target.value })}
-                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white"
-                placeholder="🎵"
-                maxLength={2}
-              />
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-300 mb-2">
+              Ícone (Emoji)
+            </label>
+            <input
+              type="text"
+              value={newMember.icon}
+              onChange={(e) => setNewMember({ ...newMember, icon: e.target.value })}
+              className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-lg focus:outline-none focus:border-blue-500 text-white"
+              placeholder="🎵"
+              maxLength={2}
+            />
           </div>
 
           <div>

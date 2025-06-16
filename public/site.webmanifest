@@ -1,0 +1,41 @@
+{
+  "name": "Rádio Tribo FM",
+  "short_name": "Tribo FM",
+  "description": "A melhor música ao vivo 24/7",
+  "theme_color": "#1f2937",
+  "background_color": "#111827",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png", 
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["music", "entertainment"],
+  "lang": "pt-BR",
+  "shortcuts": [
+    {
+      "name": "Ouvir Ao Vivo",
+      "short_name": "Ao Vivo",
+      "description": "Ouvir a rádio ao vivo",
+      "url": "/?live=true",
+      "icons": [{ "src": "/android-chrome-96x96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Chat",
+      "short_name": "Chat",
+      "description": "Participar do chat",
+      "url": "/#chat",
+      "icons": [{ "src": "/android-chrome-96x96.png", "sizes": "96x96" }]
+    }
+  ]
+}

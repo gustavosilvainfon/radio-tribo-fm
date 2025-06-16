@@ -1,22 +1,16 @@
 'use client';
 
-import { Radio, Settings } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import Link from 'next/link';
+import Logo from './Logo';
 
 export default function Header() {
   return (
     <header className="bg-gray-800 border-b border-gray-700">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="relative">
-              <Radio className="w-8 h-8 text-blue-500" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full animate-pulse"></div>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-white">Rádio Tribo FM</h1>
-              <p className="text-sm text-gray-400">A Sua Música, A Sua Tribo</p>
-            </div>
+          <Link href="/">
+            <Logo size="lg" variant="horizontal" />
           </Link>
           
           <nav className="hidden md:flex items-center space-x-6">

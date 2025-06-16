@@ -72,14 +72,22 @@ export default function Team() {
               <div className="relative">
                 <div className="aspect-square relative overflow-hidden">
                   <Image
-                    src={member.imageUrl}
+                    src={member.imageUrl || `https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face&auto=format&q=80`}
                     alt={member.name}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform duration-300"
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    unoptimized
                     onError={(e) => {
                       const target = e.target as HTMLImageElement;
-                      target.src = `https://via.placeholder.com/300x300/374151/ffffff?text=${member.icon}`;
+                      // Fallback para diferentes imagens de pessoas
+                      const fallbackImages = [
+                        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=face&auto=format&q=80',
+                        'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=400&h=400&fit=crop&crop=face&auto=format&q=80',
+                        'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=face&auto=format&q=80'
+                      ];
+                      const randomFallback = fallbackImages[Math.floor(Math.random() * fallbackImages.length)];
+                      target.src = randomFallback;
                     }}
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-gray-900/80 to-transparent"></div>

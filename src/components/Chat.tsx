@@ -35,7 +35,7 @@ export default function Chat() {
     // Load initial messages
     loadMessages();
 
-    // Simulate receiving messages
+    // Simulate receiving messages (less frequent to avoid scroll issues)
     const interval = setInterval(() => {
       const randomMessages = [
         'Adorando essa música! 🎵',
@@ -52,16 +52,19 @@ export default function Chat() {
         'MelodyHunter', 'RhythmKing', 'AudioPhile', 'TuneSeeker', 'BassHead'
       ];
 
-      if (Math.random() > 0.7) { // 30% chance to receive a message
+      if (Math.random() > 0.85) { // 15% chance to receive a message (less frequent)
         const newMsg: ChatMessage = {
           id: Date.now().toString(),
           username: randomUsernames[Math.floor(Math.random() * randomUsernames.length)],
           message: randomMessages[Math.floor(Math.random() * randomMessages.length)],
           timestamp: new Date(),
         };
-        setMessages(prev => [...prev.slice(-49), newMsg]); // Keep only last 50 messages
+        setMessages(prev => {
+          const newMessages = [...prev.slice(-49), newMsg];
+          return newMessages;
+        });
       }
-    }, 8000);
+    }, 15000); // Increased to 15 seconds
 
     return () => clearInterval(interval);
   }, []);

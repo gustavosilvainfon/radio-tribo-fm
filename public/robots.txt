@@ -1,0 +1,19 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://radiotribofm.com.br/sitemap.xml
+
+# Disallow admin areas
+Disallow: /admin/
+Disallow: /api/
+
+# Allow important pages
+Allow: /
+Allow: /chat
+Allow: /news
+Allow: /team
+Allow: /promotions
+
+# Crawl-delay for bots
+Crawl-delay: 1

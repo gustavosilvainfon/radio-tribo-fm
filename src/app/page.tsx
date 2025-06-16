@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
 import RadioPlayer from '@/components/RadioPlayer';
+import CurrentSong from '@/components/CurrentSong';
 import TopSongs from '@/components/TopSongs';
 import TopSongsSidebar from '@/components/TopSongsSidebar';
 import Chat from '@/components/Chat';
@@ -63,6 +64,21 @@ export default function Home() {
           <div className="absolute top-40 right-20 w-6 h-6 bg-purple-500 rounded-full opacity-20 animate-pulse"></div>
           <div className="absolute bottom-20 left-1/4 w-3 h-3 bg-pink-500 rounded-full opacity-20 animate-bounce"></div>
           <div className="absolute bottom-40 right-1/3 w-5 h-5 bg-green-500 rounded-full opacity-20 animate-ping"></div>
+        </div>
+      </section>
+
+      {/* Current Song Section */}
+      <section className="py-8 bg-gray-800 border-t border-gray-700">
+        <div className="container mx-auto px-4">
+          <div className="max-w-2xl mx-auto">
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold text-white mb-2">Tocando Agora</h2>
+              <p className="text-gray-400">Acompanhe o que está rolando na Rádio Tribo FM</p>
+            </div>
+            <ErrorBoundary>
+              <CurrentSong />
+            </ErrorBoundary>
+          </div>
         </div>
       </section>
 
